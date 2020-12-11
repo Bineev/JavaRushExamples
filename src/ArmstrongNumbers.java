@@ -6,13 +6,21 @@ import java.util.*;
 
 public class ArmstrongNumbers {
     static int[][] matrix = null;
+    static ArrayList<Long> coolList = new ArrayList<>();
 
     public static long[] getNumbers(long N) {
+        coolList.clear();
         long[] result = null;
         int bitness = Long.toString(N).length();
         matrix = getNumPowMatrix(bitness);
 
         System.out.println(getSumOfPowWithBitness(12589l, bitness));
+        getCoolNumbers(0, bitness, "");
+        System.out.println("------------------------------------------------");
+        for (Long l:
+             coolList) {
+            System.out.println(l);
+        }
         return result;
     }
 
@@ -42,6 +50,20 @@ public class ArmstrongNumbers {
             i++;
         }
         return result;
+    }
+
+    public static void getCoolNumbers(int start, int bitness /* input should be length */, String result) {
+        if (bitness == 1) {
+            for (int i = 0; i < 10; i++) {
+                coolList.add(Long.parseLong((result + i).replace("^0+", "")));
+            }
+            return;
+        }
+
+        for (int i = 0; i < 10; i++) {
+            result += i;
+            getCoolNumbers(i, bitness - 1, result);
+        }
     }
 
     public static void main(String[] args) {
