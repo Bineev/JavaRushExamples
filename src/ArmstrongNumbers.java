@@ -6,19 +6,17 @@ import java.util.*;
 
 public class ArmstrongNumbers {
     static int[][] matrix = null;
-    static ArrayList<Long> coolList = new ArrayList<>();
+    static Set<Long> coolSet = new TreeSet<>();
 
     public static long[] getNumbers(long N) {
-        coolList.clear();
+        coolSet.clear();
         long[] result = null;
         int bitness = Long.toString(N).length();
         matrix = getNumPowMatrix(bitness);
-
-        System.out.println(getSumOfPowWithBitness(12589l, bitness));
-        getCoolNumbers(0, bitness, "");
+        getCoolNumbers(0, bitness, bitness, "");
         System.out.println("------------------------------------------------");
         for (Long l:
-             coolList) {
+             coolSet) {
             System.out.println(l);
         }
         return result;
@@ -43,27 +41,58 @@ public class ArmstrongNumbers {
             reverseInputNum = reverseInputNum * 10 + digit;
             temp /= 10;
         }
-        String input = Long.toString(inputNum);
+        String input = String.valueOf(inputNum);
         int i = 0;
-        while (result < reverseInputNum && i < input.length()) {
+        while (/*result <= reverseInputNum &&*/ i < input.length()) {
             result += matrix[Integer.parseInt(Character.toString(input.charAt(i)))][bitness];
             i++;
         }
         return result;
     }
 
-    public static void getCoolNumbers(int start, int bitness /* input should be length */, String result) {
-        if (bitness == 1) {
-            for (int i = 0; i < 10; i++) {
-                coolList.add(Long.parseLong((result + i).replace("^0+", "")));
+    public static void getCoolNumbers(int start, int bitness /* input should be length */, int basicBitness, String result) {
+        if (bitness == 2) {
+            if ((result + 1).replace("^0+", "").length() > basicBitness - 1) {
+                return;
+            }
+            for (int i = start; i < 10; i++) {
+                String res = Long.valueOf(result + i).toString();
+                int countStart = res.length();
+                int countEnd = basicBitness - countStart > 5 ? countStart + 5 : basicBitness;
+                for (int j = countStart; j < countEnd; j++) {
+                    long sumOfPow = getSumOfPowWithBitness(Long.parseLong(res), j);
+                    long sortedSumOfPow = sortLong(sumOfPow);
+                    if (Long.parseLong(res) == sortedSumOfPow && String.valueOf(sumOfPow).length() == j) {
+                        coolSet.add(sumOfPow);
+                    }
+                }
             }
             return;
         }
-
-        for (int i = 0; i < 10; i++) {
-            result += i;
-            getCoolNumbers(i, bitness - 1, result);
+        for (int i = start; i < 10; i++) {
+//            result += i;
+            getCoolNumbers(i, bitness - 1, basicBitness, result + i);
         }
+    }
+
+    public static long sortLong(long l) {
+        ArrayList<Integer> list = new ArrayList<>();
+        long temp = l;
+        do {
+             int a = (int) (temp % 10);
+             list.add(a);
+             temp /= 10;
+        } while (temp > 0);
+        Collections.sort(list);
+
+        String result = "";
+        for (Integer integer : list) {
+            result += integer;
+        }
+        if (result.equals("")) {
+            return 0;
+        }
+        return Long.parseLong(result);
     }
 
     public static void main(String[] args) {
