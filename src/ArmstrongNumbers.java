@@ -1,5 +1,8 @@
 package com.javarush.task.task20.task2025;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.math.BigInteger;
 import java.util.*;
 
@@ -10,12 +13,13 @@ import java.util.*;
 public class Solution {
     static long[][] matrix = null;
     static Set<Long> coolSet = new TreeSet<>();
+    static long max = 0;
 
     public static long[] getNumbers(long N) {
-
+        max = N;
         coolSet.clear();
         long[] result = null;
-        if (N <= 0) {
+        if (N < 0) {
             return new long[0];
         }
         if (N < 10) {
@@ -59,28 +63,33 @@ public class Solution {
             result += matrix[Integer.parseInt(Character.toString(input.charAt(i)))][bitness];
             i++;
             if (result < 0) {
-                break;
+                return 0;
             }
         }
         return result;
     }
 
     public static void getCoolNumbers(int start, int bitness /* input should be length */, int basicBitness, String result) {
-        if (bitness == 2) {
-            if ((result + 1).replace("^0+", "").length() > basicBitness - 1) {
-                return;
-            }
+        if (bitness == 1) {
+//            if ((result + 1).replace("^0+", "").length() > basicBitness) {
+//                return;
+//            }
             for (int i = start; i < 10; i++) {
-                String res = Long.valueOf(result + i).toString();
-                int countStart = res.length();
-                int countEnd = basicBitness - countStart > 5 ? countStart + 5 : basicBitness;
-                for (int j = countStart; j <= countEnd; j++) {
-                    long sumOfPow = getSumOfPowWithBitness(Long.parseLong(res), j);
-                    long sortedSumOfPow = sortLong(sumOfPow);
-                    // shit is near
-                    if (Long.parseLong(res) == sortedSumOfPow && String.valueOf(sumOfPow).length() == j) {
-                        coolSet.add(sumOfPow);
+                String res = null;
+                try {
+                    res = Long.valueOf(result + i).toString();
+                    int countStart = res.length();
+                    int countEnd = basicBitness - countStart > 5 ? countStart + 5 : basicBitness;
+                    for (int j = countStart; j <= countEnd; j++) {
+                        long sumOfPow = getSumOfPowWithBitness(Long.parseLong(res), j);
+                        long sortedSumOfPow = sortLong(sumOfPow);
+                        // shit is near
+                        if (Long.parseLong(res) == sortedSumOfPow && String.valueOf(sumOfPow).length() == j && sumOfPow < max) {
+                            coolSet.add(sumOfPow);
+                        }
                     }
+                } catch (NumberFormatException ignored) {
+
                 }
             }
             return;
@@ -113,15 +122,15 @@ public class Solution {
 
     public static void main(String[] args) {
         long a = System.currentTimeMillis();
-        System.out.println(Arrays.toString(getNumbers(1000)));
+        System.out.println(Arrays.toString(getNumbers(10000)));
         long b = System.currentTimeMillis();
         System.out.println("memory " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (8 * 1024));
         System.out.println("time = " + (b - a) / 1000);
 
-//        a = System.currentTimeMillis();
-//        System.out.println(Arrays.toString(getNumbers(Long.MAX_VALUE)));
-//        b = System.currentTimeMillis();
-//        System.out.println("memory " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (8 * 1024));
-//        System.out.println("time = " + (b - a) / 1000);
+        a = System.currentTimeMillis();
+        System.out.println(Arrays.toString(getNumbers(Long.MAX_VALUE)));
+        b = System.currentTimeMillis();
+        System.out.println("memory " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (8 * 1024));
+        System.out.println("time = " + (b - a) / 1000);
     }
 }
