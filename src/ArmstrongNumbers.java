@@ -13,11 +13,15 @@ import java.util.*;
 public class Solution {
     static long[][] matrix = null;
     static Set<Long> coolSet = new TreeSet<>();
+    static List<Long> coolList = new ArrayList<>();
     static long max = 0;
+    static final String maxLong = String.valueOf(Long.MAX_VALUE);
+    static boolean stopper = false;
 
     public static long[] getNumbers(long N) {
         max = N;
         coolSet.clear();
+        coolList.clear();
         long[] result = null;
         if (N < 0) {
             return new long[0];
@@ -32,6 +36,22 @@ public class Solution {
         int bitness = Long.toString(N).length();
         matrix = getNumPowMatrix(bitness);
         getCoolNumbers(0, bitness, bitness, "");
+        for (Long aLong : coolList) {
+            if (String.valueOf(aLong).length() == 19 && Character.getNumericValue(String.valueOf(aLong).charAt(0)) > 5) {
+                break;
+            }
+            int countStart = String.valueOf(aLong).length();
+            int countEnd = bitness - countStart > 5 ? countStart + 5 : bitness;
+            for (int j = countStart; j <= countEnd; j++) {
+                long sumOfPow = getSumOfPowWithBitness(aLong, j);
+                long sortedSumOfPow = sortLong(sumOfPow);
+                // shit is near
+                if (aLong == sortedSumOfPow && String.valueOf(sumOfPow).length() == j && sumOfPow < max) {
+                    coolSet.add(sumOfPow);
+                }
+            }
+        }
+
         result = new long[coolSet.size() - 1];
         int i = 0;
 
@@ -63,7 +83,7 @@ public class Solution {
             result += matrix[Integer.parseInt(Character.toString(input.charAt(i)))][bitness];
             i++;
             if (result < 0) {
-                return 0;
+                break;
             }
         }
         return result;
@@ -71,31 +91,24 @@ public class Solution {
 
     public static void getCoolNumbers(int start, int bitness /* input should be length */, int basicBitness, String result) {
         if (bitness == 1) {
-//            if ((result + 1).replace("^0+", "").length() > basicBitness) {
-//                return;
-//            }
-            for (int i = start; i < 10; i++) {
-                String res = null;
+            if ((result + "0").length() == 19 && Character.getNumericValue(String.valueOf(result).charAt(0)) > 5) {
+                return;
+            } else {
                 try {
-                    res = Long.valueOf(result + i).toString();
-                    int countStart = res.length();
-                    int countEnd = basicBitness - countStart > 5 ? countStart + 5 : basicBitness;
-                    for (int j = countStart; j <= countEnd; j++) {
-                        long sumOfPow = getSumOfPowWithBitness(Long.parseLong(res), j);
-                        long sortedSumOfPow = sortLong(sumOfPow);
-                        // shit is near
-                        if (Long.parseLong(res) == sortedSumOfPow && String.valueOf(sumOfPow).length() == j && sumOfPow < max) {
-                            coolSet.add(sumOfPow);
-                        }
+                    for (int i = start; i < 10; i++) {
+                        coolList.add(Long.valueOf(result + i));
                     }
                 } catch (NumberFormatException ignored) {
 
+                } finally {
+                    return;
                 }
             }
-            return;
+
+
+
         }
         for (int i = start; i < 10; i++) {
-//            result += i;
             getCoolNumbers(i, bitness - 1, basicBitness, result + i);
         }
     }
@@ -109,7 +122,6 @@ public class Solution {
             temp /= 10;
         } while (temp > 0);
         Collections.sort(list);
-
         String result = "";
         for (Integer integer : list) {
             result += integer;
@@ -122,15 +134,15 @@ public class Solution {
 
     public static void main(String[] args) {
         long a = System.currentTimeMillis();
-        System.out.println(Arrays.toString(getNumbers(10000)));
+        System.out.println(Arrays.toString(getNumbers(Long.MAX_VALUE)));
         long b = System.currentTimeMillis();
         System.out.println("memory " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (8 * 1024));
         System.out.println("time = " + (b - a) / 1000);
 
-        a = System.currentTimeMillis();
-        System.out.println(Arrays.toString(getNumbers(Long.MAX_VALUE)));
-        b = System.currentTimeMillis();
-        System.out.println("memory " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (8 * 1024));
-        System.out.println("time = " + (b - a) / 1000);
+//        a = System.currentTimeMillis();
+//        System.out.println(Arrays.toString(getNumbers(Long.MAX_VALUE)));
+//        b = System.currentTimeMillis();
+//        System.out.println("memory " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (8 * 1024));
+//        System.out.println("time = " + (b - a) / 1000);
     }
 }
